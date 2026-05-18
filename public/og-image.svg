@@ -1,0 +1,25 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="50" y1="50" x2="1150" y2="580" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06293F" />
+      <stop offset="0.58" stop-color="#04131F" />
+      <stop offset="1" stop-color="#02070D" />
+    </linearGradient>
+    <linearGradient id="logoGradient" x1="0" y1="0" x2="170" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE" />
+      <stop offset="1" stop-color="#10B981" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" rx="24" fill="url(#bg)" />
+  <circle cx="180" cy="120" r="120" fill="#22D3EE" fill-opacity="0.18" />
+  <circle cx="1050" cy="560" r="150" fill="#10B981" fill-opacity="0.16" />
+
+  <rect x="120" y="210" width="170" height="170" rx="50" fill="url(#logoGradient)" />
+  <path d="M162 264H198V300H162V264ZM212 264H248V300H212V264ZM162 314H198V350H162V314ZM212 314H248V350H212V314Z" fill="#05222F" fill-opacity="0.82" />
+  <path d="M156 248L205 223L254 248" stroke="#E6FFFB" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+
+  <text x="330" y="290" fill="#E2F8FF" font-family="Segoe UI, sans-serif" font-size="62" font-weight="800">WebGratis Store</text>
+  <text x="330" y="348" fill="#BEE7F9" font-family="Segoe UI, sans-serif" font-size="30" font-weight="600">Kumpulan website gratis berdasarkan kategori</text>
+  <text x="330" y="392" fill="#94AFC2" font-family="Segoe UI, sans-serif" font-size="26">Temukan tools bermanfaat dalam satu web app</text>
+</svg>

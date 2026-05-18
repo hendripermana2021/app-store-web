@@ -1,26 +1,173 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #020710;
+  --foreground: #e4edf7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-space-grotesk), "Segoe UI", sans-serif;
+}
+
+.glass-panel {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: linear-gradient(
+    160deg,
+    rgba(15, 23, 42, 0.82) 0%,
+    rgba(12, 26, 44, 0.55) 100%
+  );
+  backdrop-filter: blur(14px);
+}
+
+.glass-shell {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.78) 0%,
+    rgba(8, 47, 73, 0.34) 50%,
+    rgba(3, 7, 18, 0.84) 100%
+  );
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 24px 48px rgba(2, 6, 23, 0.45);
+}
+
+.glass-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0) 36%
+  );
+}
+
+.glass-dock {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.64);
+  backdrop-filter: blur(22px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 14px 28px rgba(2, 6, 23, 0.4);
+}
+
+.app-card {
+  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.35);
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.app-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: rgba(125, 211, 252, 0.36);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 22px 38px rgba(6, 182, 212, 0.2);
+}
+
+.animate-rise {
+  opacity: 0;
+  animation: rise 620ms ease forwards;
+}
+
+.metal-pill {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: linear-gradient(
+    155deg,
+    rgba(203, 213, 225, 0.18) 0%,
+    rgba(148, 163, 184, 0.08) 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.glass-button {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.08) 100%);
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.carousel-snap {
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+
+.carousel-snap::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-card {
+  scroll-snap-align: start;
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -20% -30% auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  filter: blur(22px);
+  pointer-events: none;
+}
+
+.tab-surface {
+  animation: tabFade 420ms ease;
+}
+
+@keyframes tabFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    opacity: 1;
+    animation: none;
+  }
+
+  .app-card,
+  .app-card:hover {
+    transform: none;
+    transition: none;
+  }
+
+  .tab-surface {
+    animation: none;
+  }
 }
