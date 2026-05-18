@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { websiteCategories, websites } from "@/lib/websites";
 import BrandLogo from "@/components/BrandLogo";
+import { youtubeChannels } from "@/lib/youtubeChannels";
 
 function getDomainFromUrl(rawUrl: string) {
   try {
@@ -60,6 +61,55 @@ function isNoSubscriptionWebsite(freeNote: string) {
   );
 }
 
+function parseSubscriberCount(value: string) {
+  const normalized = value.replace(/\s+/g, "").toUpperCase();
+  const num = Number.parseFloat(normalized);
+
+  if (Number.isNaN(num)) {
+    return 0;
+  }
+
+  if (normalized.includes("M")) {
+    return num * 1_000_000;
+  }
+
+  if (normalized.includes("K")) {
+    return num * 1_000;
+  }
+
+  return num;
+}
+
+function getChannelInitials(name: string) {
+  const words = name
+    .replace(/[^a-zA-Z0-9 ]/g, " ")
+    .split(" ")
+    .filter(Boolean);
+
+  if (words.length === 0) {
+    return "YT";
+  }
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+}
+
+function getChannelAccent(name: string) {
+  const gradients = [
+    "from-rose-400/80 to-red-500/85",
+    "from-fuchsia-400/80 to-pink-500/85",
+    "from-orange-400/80 to-amber-500/85",
+    "from-cyan-400/80 to-sky-500/85",
+    "from-emerald-400/80 to-teal-500/85",
+  ];
+  const score = [...name].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return gradients[score % gradients.length];
+}
+
+
 export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -83,6 +133,32 @@ export default function Home() {
       return matchesCategory && matchesSearch && matchesNoSubscription;
     });
   }, [activeCategory, onlyNoSubscription, searchText]);
+
+  const filteredChannels = useMemo(() => {
+    const lowerSearch = searchText.trim().toLowerCase();
+
+    return youtubeChannels.filter((channel) => {
+      const matchesCategory =
+        activeCategory === "All" || channel.category === activeCategory;
+      const matchesSearch =
+        lowerSearch.length === 0 ||
+        channel.name.toLowerCase().includes(lowerSearch) ||
+        channel.description.toLowerCase().includes(lowerSearch);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [activeCategory, searchText]);
+
+  const fallbackChannels = useMemo(() => {
+    return [...youtubeChannels]
+      .sort(
+        (a, b) => parseSubscriberCount(b.subscribers) - parseSubscriberCount(a.subscribers)
+      )
+      .slice(0, 12);
+  }, []);
+
+  const displayChannels =
+    filteredChannels.length > 0 ? filteredChannels : fallbackChannels;
 
   const groupedWebsites = useMemo(() => {
     const groups = new Map<string, typeof websites>();
@@ -115,6 +191,14 @@ export default function Home() {
     });
   }, [filteredWebsites]);
 
+  const topYouTubeCharts = useMemo(() => {
+    return [...displayChannels].sort(
+      (a, b) => parseSubscriberCount(b.subscribers) - parseSubscriberCount(a.subscribers)
+    );
+  }, [displayChannels]);
+
+  const totalResults = filteredWebsites.length + displayChannels.length;
+
   const tabButtonClass = (tab: (typeof appTabs)[number]) =>
     `rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition ${
       activeTab === tab
@@ -135,7 +219,7 @@ export default function Home() {
               <div className="flex items-center justify-between gap-3">
                 <BrandLogo textMode="desktop" />
                 <div className="metal-pill rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-cyan-100 sm:hidden">
-                  {filteredWebsites.length} SITES
+                  {totalResults} RESULTS
                 </div>
               </div>
 
@@ -148,7 +232,7 @@ export default function Home() {
                   className="h-11 flex-1 rounded-2xl border border-white/15 bg-slate-900/70 px-4 text-sm text-white placeholder:text-slate-400 outline-none ring-cyan-400/70 transition focus:ring"
                 />
                 <div className="metal-pill hidden items-center rounded-2xl px-4 text-sm font-bold text-cyan-50 sm:flex">
-                  {filteredWebsites.length} Sites
+                  {totalResults} Results
                 </div>
               </div>
             </div>
@@ -337,6 +421,70 @@ export default function Home() {
             </article>
           </section>
         )}
+
+        <section className="animate-rise mb-8">
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.22em] text-rose-200">YOUTUBE CHANNELS</p>
+              <h3 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+                Channel YouTube berdasarkan kategori website
+              </h3>
+            </div>
+            <p className="metal-pill hidden rounded-full px-3 py-1 text-xs font-semibold text-rose-100 sm:block">
+              {displayChannels.length} Channels
+            </p>
+          </div>
+
+          {filteredChannels.length === 0 && (
+            <article className="mb-4 rounded-2xl border border-amber-200/25 bg-amber-200/10 px-3 py-2 text-xs text-amber-100">
+              Filter terlalu ketat, menampilkan rekomendasi channel populer.
+            </article>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {(activeTab === "Top Charts" ? topYouTubeCharts.slice(0, 12) : displayChannels).map(
+              (channel, index) => (
+                <article key={channel.url} className="app-card glass-shell rounded-3xl p-5">
+                  <div className="mb-3 flex items-start justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br text-xs font-bold text-white ${getChannelAccent(channel.name)}`}
+                        aria-label={`${channel.name} avatar`}
+                      >
+                        {getChannelInitials(channel.name)}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="truncate text-lg font-bold text-white">
+                          {activeTab === "Top Charts" ? `#${index + 1} ${channel.name}` : channel.name}
+                        </h4>
+                        <p className="text-xs text-rose-200">{channel.category}</p>
+                      </div>
+                    </div>
+                    <a
+                      href={channel.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg border border-rose-300/40 px-2.5 py-1 text-xs font-semibold text-rose-100 transition hover:bg-rose-300/20"
+                    >
+                      Watch
+                    </a>
+                  </div>
+
+                  <p className="mb-3 min-h-12 text-sm text-slate-300">{channel.description}</p>
+
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full border border-rose-200/35 bg-rose-300/10 px-2 py-1 font-semibold text-rose-100">
+                      {channel.subscribers} subscribers
+                    </span>
+                    <span className="rounded-full border border-white/20 bg-white/8 px-2 py-1 text-slate-200">
+                      {channel.language}
+                    </span>
+                  </div>
+                </article>
+              )
+            )}
+          </div>
+        </section>
 
         {groupedWebsites.length === 0 ? (
           <section className="glass-shell animate-rise rounded-3xl p-8 text-center">
