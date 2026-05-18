@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { websiteCategories, websites } from "@/lib/websites";
 import BrandLogo from "@/components/BrandLogo";
 import { youtubeChannels } from "@/lib/youtubeChannels";
@@ -115,6 +115,18 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeTab, setActiveTab] = useState<(typeof appTabs)[number]>("Today");
   const [onlyNoSubscription, setOnlyNoSubscription] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") {
+      return "dark";
+    }
+
+    const savedTheme = window.localStorage.getItem("webgratis-theme");
+    return savedTheme === "dark" || savedTheme === "light" ? savedTheme : "dark";
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem("webgratis-theme", theme);
+  }, [theme]);
 
   const filteredWebsites = useMemo(() => {
     const lowerSearch = searchText.trim().toLowerCase();
@@ -206,8 +218,13 @@ export default function Home() {
         : "text-slate-200/80 hover:bg-white/10 hover:text-white"
     }`;
 
+  const themeClass =
+    theme === "light"
+      ? "theme-light bg-[radial-gradient(circle_at_18%_12%,_#f7fbff_0%,_#dfeefc_34%,_#cfe3f7_62%,_#bfdaf4_100%)] text-slate-900"
+      : "theme-dark bg-[radial-gradient(circle_at_18%_12%,_#0e4a6d_0%,_#052234_32%,_#04101d_58%,_#02070d_100%)] text-slate-100";
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_18%_12%,_#0e4a6d_0%,_#052234_32%,_#04101d_58%,_#02070d_100%)] text-slate-100">
+    <div className={`relative min-h-screen overflow-hidden ${themeClass}`}>
       <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
       <div className="pointer-events-none absolute top-12 right-20 h-56 w-56 rounded-full bg-sky-200/10 blur-3xl" />
       <div className="pointer-events-none absolute right-0 bottom-0 h-80 w-80 rounded-full bg-emerald-400/20 blur-3xl" />
@@ -218,8 +235,18 @@ export default function Home() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center justify-between gap-3">
                 <BrandLogo textMode="desktop" />
-                <div className="metal-pill rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-cyan-100 sm:hidden">
-                  {totalResults} RESULTS
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
+                    className="metal-pill rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.12em] text-cyan-100"
+                    aria-label="Toggle theme"
+                  >
+                    {theme === "dark" ? "LIGHT" : "DARK"} MODE
+                  </button>
+                  <div className="metal-pill rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.2em] text-cyan-100 sm:hidden">
+                    {totalResults} RESULTS
+                  </div>
                 </div>
               </div>
 
